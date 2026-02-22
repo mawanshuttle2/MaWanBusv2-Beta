@@ -1014,8 +1014,8 @@ export const routes: Route[] = [
         stops: [
           { name: { en: 'Kowloon Station', zh: '九龍站' }, offsetMinutes: 0 },
           { name: { en: 'East TST Station', zh: '尖東站' }, offsetMinutes: 10 },
-          { name: { en: 'Austin Station', zh: '柯士甸站' }, offsetMinutes: 19 },
-          { name: { en: 'Nam Cheong Station', zh: '南昌站' }, offsetMinutes: 28, isDefault: true }
+          { name: { en: 'Austin Station', zh: '柯士甸站' }, offsetMinutes: 17 },
+          { name: { en: 'Nam Cheong Station', zh: '南昌站' }, offsetMinutes: 25, isDefault: true }
         ],
         departures: {
           weekday: [
