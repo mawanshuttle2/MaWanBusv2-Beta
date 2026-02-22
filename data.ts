@@ -984,7 +984,6 @@ export const routes: Route[] = [
         }
       }
     ]
-  }
 },
   {
     id: '230R',
