@@ -985,7 +985,7 @@ export const routes: Route[] = [
       }
     ]
   }
-],
+},
   {
     id: '230R',
     name: { en: 'Kowloon', zh: '九龍' },
