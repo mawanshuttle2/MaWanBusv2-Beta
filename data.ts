@@ -398,7 +398,7 @@ export const routes: Route[] = [
         departures: {
           weekday: [
             '06:00', '06:30',
-            '07:00', '07:30', '07:40',
+            '07:00', '07:20', '07:40',
             '08:00', '08:20', '08:40',
             '09:00', '09:20', '09:40',
             '10:00', '10:20', '10:40',
@@ -490,7 +490,7 @@ export const routes: Route[] = [
           ],
           saturday: [
             '06:20', '06:50',
-            '07:20', '07:50',
+            '07:20', '07:40',
             '08:00', '08:20', '08:40',
             '09:00', '09:20', '09:40',
             '10:00', '10:20', '10:40',
@@ -511,7 +511,7 @@ export const routes: Route[] = [
           ],
           sunday: [
             '06:20', '06:50',
-            '07:20', '07:50',
+            '07:20', '07:40',
             '08:00', '08:20', '08:40',
             '09:00', '09:20', '09:40',
             '10:00', '10:20', '10:40',
@@ -614,7 +614,6 @@ export const routes: Route[] = [
         stops: [],
         departures: {
           weekday: [
-            '06:10', '06:40',
             '07:10', '07:40',
             '08:10', '08:40',
             '09:10', '09:40',
@@ -634,7 +633,6 @@ export const routes: Route[] = [
             '23:40'
           ],
           saturday: [
-            '06:10', '06:40',
             '07:10', '07:40',
             '08:10', '08:40',
             '09:10', '09:40',
@@ -654,7 +652,6 @@ export const routes: Route[] = [
             '23:40'
           ],
           sunday: [
-            '06:10', '06:40',
             '07:10', '07:40',
             '08:10', '08:40',
             '09:10', '09:40',
@@ -987,7 +984,8 @@ export const routes: Route[] = [
         }
       }
     ]
-  },
+  }
+],
   {
     id: '230R',
     name: { en: 'Kowloon', zh: '九龍' },
@@ -1016,9 +1014,9 @@ export const routes: Route[] = [
         to: { en: 'Park Island', zh: '珀麗灣' },
         stops: [
           { name: { en: 'Kowloon Station', zh: '九龍站' }, offsetMinutes: 0 },
-          { name: { en: 'East TST Station', zh: '尖東站' }, offsetMinutes: 15 },
-          { name: { en: 'Austin Station', zh: '柯士甸站' }, offsetMinutes: 23 },
-          { name: { en: 'Nam Cheong Station', zh: '南昌站' }, offsetMinutes: 33, isDefault: true }
+          { name: { en: 'East TST Station', zh: '尖東站' }, offsetMinutes: 10 },
+          { name: { en: 'Austin Station', zh: '柯士甸站' }, offsetMinutes: 19 },
+          { name: { en: 'Nam Cheong Station', zh: '南昌站' }, offsetMinutes: 28, isDefault: true }
         ],
         departures: {
           weekday: [
