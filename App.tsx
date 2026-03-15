@@ -579,7 +579,7 @@ const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void; lang: Lang
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.selectLanguage}</label> <div className="grid grid-cols-2 gap-4"> {(['en', 'zh'] as Language[]).map((l) => ( <button key={l} onClick={() => onLangChange(l)} className={`p-5 rounded-3xl border-2 transition-all text-left ${ lang === l ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <div className="font-black text-lg leading-none mb-2">{l === 'en' ? 'English' : '繁體中文'}</div> <div className="text-[10px] uppercase font-bold opacity-60">{l === 'en' ? 'Default' : 'Traditional'}</div> </button> ))} </div> </div>
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.scheduleType}</label> <div className="grid grid-cols-2 gap-3"> {(['auto', 'weekday', 'saturday', 'sunday'] as ScheduleOverride[]).map((mode) => ( <button key={mode} onClick={() => onScheduleOverrideChange(mode)} className={`flex items-center justify-between p-4 rounded-3xl border-2 transition-all ${ scheduleOverride === mode ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <span className="font-black text-sm">{t[mode as keyof typeof t] as string}</span> {scheduleOverride === mode && <Check size={16} strokeWidth={3} />} </button> ))} </div> </div>
         </div>
-        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.3 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
+        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.5 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
       </div>
     </div>
   );
@@ -790,11 +790,51 @@ export default function App() {
         }
 
         if (csvData && csvData.length > 30) {
-            const allLines = csvData.split(/\r?\n/).filter(line => line.trim().length > 0);
-            const headerLine = allLines[0].toLowerCase();
-            const dataLines = headerLine.includes('timestamp') || headerLine.includes('時間') ? allLines.slice(1) : allLines;
-            
-            const headers = allLines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim().toLowerCase());
+            const parseCSV = (text: string) => {
+                const result = [];
+                let row = [];
+                let inQuotes = false;
+                let val = '';
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char === '"') {
+                        if (inQuotes && text[i+1] === '"') {
+                            val += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        row.push(val);
+                        val = '';
+                    } else if (char === '\n' && !inQuotes) {
+                        row.push(val);
+                        result.push(row);
+                        row = [];
+                        val = '';
+                    } else if (char === '\r' && !inQuotes) {
+                        if (text[i+1] === '\n') i++;
+                        row.push(val);
+                        result.push(row);
+                        row = [];
+                        val = '';
+                    } else {
+                        val += char;
+                    }
+                }
+                row.push(val);
+                if (row.length > 0 && row.some(c => c.trim().length > 0)) {
+                    result.push(row);
+                }
+                return result;
+            };
+
+            const allRows = parseCSV(csvData).filter(row => row.some(cell => cell.trim().length > 0));
+            if (allRows.length === 0) return;
+
+            const headers = allRows[0].map(c => c.trim().toLowerCase());
+            const hasTimestampHeader = headers.some(h => h.includes('timestamp') || h.includes('時間'));
+            const dataRows = hasTimestampHeader ? allRows.slice(1) : allRows;
             
             let colIdx = {
                 timestamp: headers.findIndex(h => h.includes('timestamp') || h.includes('時間')),
@@ -878,16 +918,15 @@ export default function App() {
                 return new Date().toISOString();
             };
 
-            const parsedNotices = dataLines.map((row: string) => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+            const parsedNotices = dataRows.map((cols: string[]) => {
                 if (cols.length < 5) return null;
                 
-                const formTimestamp = cols[colIdx.timestamp];
-                const message = cols[colIdx.message];
-                const postingDate = cols[colIdx.postingDate];
-                const postingTime = cols[colIdx.postingTime];
-                const deleteTime = cols[colIdx.deleteTime];
-                const routeId = cols[colIdx.route];
+                const formTimestamp = cols[colIdx.timestamp]?.trim();
+                const message = cols[colIdx.message]?.trim();
+                const postingDate = cols[colIdx.postingDate]?.trim();
+                const postingTime = cols[colIdx.postingTime]?.trim();
+                const deleteTime = cols[colIdx.deleteTime]?.trim();
+                const routeId = cols[colIdx.route]?.trim();
                 
                 if (!routeId || !message || !postingTime || !deleteTime) return null;
 
