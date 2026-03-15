@@ -579,7 +579,7 @@ const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void; lang: Lang
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.selectLanguage}</label> <div className="grid grid-cols-2 gap-4"> {(['en', 'zh'] as Language[]).map((l) => ( <button key={l} onClick={() => onLangChange(l)} className={`p-5 rounded-3xl border-2 transition-all text-left ${ lang === l ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <div className="font-black text-lg leading-none mb-2">{l === 'en' ? 'English' : '繁體中文'}</div> <div className="text-[10px] uppercase font-bold opacity-60">{l === 'en' ? 'Default' : 'Traditional'}</div> </button> ))} </div> </div>
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.scheduleType}</label> <div className="grid grid-cols-2 gap-3"> {(['auto', 'weekday', 'saturday', 'sunday'] as ScheduleOverride[]).map((mode) => ( <button key={mode} onClick={() => onScheduleOverrideChange(mode)} className={`flex items-center justify-between p-4 rounded-3xl border-2 transition-all ${ scheduleOverride === mode ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <span className="font-black text-sm">{t[mode as keyof typeof t] as string}</span> {scheduleOverride === mode && <Check size={16} strokeWidth={3} />} </button> ))} </div> </div>
         </div>
-        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.1 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
+        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.2 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
       </div>
     </div>
   );
@@ -915,31 +915,46 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (isRealTimeMode && selectedRoute.id === '230R') {
+    if (isRealTimeMode && (selectedRoute.id === '230R' || selectedRoute.id === 'NR331S')) {
       const fetchRealTimeETA = async () => {
         setRealTimeLoading(true);
         try {
           let stopId = '';
           let destEn = '';
-          if (directionIndex === 0) {
-             stopId = 'E37FAF099C26C878';
-             destEn = 'KOWLOON STATION';
-          } else {
-             const stopIds = [
-                 '68A0FA3CC69206CC',
-                 '576538E1395C8508',
-                 '450A96AF1DA8E41C',
-                 '83B921ED81BE55A9'
-             ];
-             stopId = stopIds[selectedStopIndex] || stopIds[0];
-             destEn = 'MA WAN (PAK YAN ROAD)';
+          let destTc = '';
+          let routeCode = selectedRoute.id === 'NR331S' ? '331S' : '230R';
+
+          if (selectedRoute.id === '230R') {
+            if (directionIndex === 0) {
+               stopId = 'E37FAF099C26C878';
+               destEn = 'KOWLOON STATION';
+            } else {
+               const stopIds = [
+                   '68A0FA3CC69206CC',
+                   '576538E1395C8508',
+                   '450A96AF1DA8E41C',
+                   '83B921ED81BE55A9'
+               ];
+               stopId = stopIds[selectedStopIndex] || stopIds[0];
+               destEn = 'MA WAN (PAK YAN ROAD)';
+            }
+          } else if (selectedRoute.id === 'NR331S') {
+            if (directionIndex === 0) {
+               stopId = '4B792EF191200C0D';
+               destTc = '荃灣西站';
+            } else {
+               stopId = 'A02CB1283981A937';
+               destTc = '馬灣(珀欣路)';
+            }
           }
 
-          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${stopId}/230R/1`);
+          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${stopId}/${routeCode}/1`);
           const data = await res.json();
           if (data && data.data) {
              const validEtas = data.data.filter((item: any) => {
-                 if (item.dest_en !== destEn || !item.eta) return false;
+                 if (selectedRoute.id === '230R' && item.dest_en !== destEn) return false;
+                 if (selectedRoute.id === 'NR331S' && item.dest_tc !== destTc) return false;
+                 if (!item.eta) return false;
                  const d = new Date(item.eta);
                  return !isNaN(d.getTime());
              }).map((item: any) => ({
@@ -1207,7 +1222,7 @@ export default function App() {
     }
     let collapseLabel = t.show12h; let expandLabel = t.show48h; if (GROUP_B.includes(selectedRoute.id)) collapseLabel = t.show24h;
 
-    if (isRealTimeMode && selectedRoute.id === '230R') {
+    if (isRealTimeMode && (selectedRoute.id === '230R' || selectedRoute.id === 'NR331S')) {
         let rtCountdown: CountdownState = { minutes: 0, seconds: 0, departureTime: '--:--', isAvailable: false };
         let rtUpcoming: ScheduleItem[] = [];
         
@@ -1282,8 +1297,8 @@ export default function App() {
           </div>
         )}
         <HeroCountdown {...currentCountdown} badges={currentCountdown.badges || []} lang={lang} themeColor={themeColor} fontSize={fontSize} transportType={activeType} onShowTraffic={() => setIsTrafficModalOpen(true)} trafficStatus={trafficNews.status} />
-        <UpcomingSchedule items={nextDepartures} lang={lang} isFullList={showFullSchedule} crossRoute={crossRouteData} routeId={selectedRoute.id} directionIndex={directionIndex} canExtend={canExtend} isExtendedView={isExtendedView} onToggleView={() => setIsExtendedView(!isExtendedView)} collapseLabel={collapseLabel} expandLabel={expandLabel} themeColor={themeColor} fontSize={fontSize} currentTimeSeconds={currentTimeSeconds} activeType={activeType} showRealTimeButton={selectedRoute.id === '230R'} isRealTime={isRealTimeMode} onToggleRealTime={() => setIsRealTimeMode(!isRealTimeMode)} />
-        {isRealTimeMode && selectedRoute.id === '230R' && (
+        <UpcomingSchedule items={nextDepartures} lang={lang} isFullList={showFullSchedule} crossRoute={crossRouteData} routeId={selectedRoute.id} directionIndex={directionIndex} canExtend={canExtend} isExtendedView={isExtendedView} onToggleView={() => setIsExtendedView(!isExtendedView)} collapseLabel={collapseLabel} expandLabel={expandLabel} themeColor={themeColor} fontSize={fontSize} currentTimeSeconds={currentTimeSeconds} activeType={activeType} showRealTimeButton={selectedRoute.id === '230R' || selectedRoute.id === 'NR331S'} isRealTime={isRealTimeMode} onToggleRealTime={() => setIsRealTimeMode(!isRealTimeMode)} />
+        {isRealTimeMode && (selectedRoute.id === '230R' || selectedRoute.id === 'NR331S') && (
           <div className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-4 mb-8">
             {translations[lang].dataSource}
           </div>
