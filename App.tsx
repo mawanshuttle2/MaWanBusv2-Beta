@@ -57,12 +57,12 @@ const translations = {
     sunday: 'Holiday/Sunday',
     forceMode: 'Mode: ',
     fullSchedule: 'Full Schedule',
-    switchFerryToCentral: 'Ferry (To Central)',
-    switchFerryToPI: 'Ferry (To Park Island)',
-    switchBusToCentral: 'Bus (To Central)',
-    switchBusToPI: 'Bus (To Park Island)',
-    switchFerryToTW: 'Ferry (To Tsuen Wan)',
-    switchBusToTWWest: 'Bus (To TW West)',
+    switchFerryToCentral: 'To Central',
+    switchFerryToPI: 'To Park Island',
+    switchBusToCentral: 'To Central',
+    switchBusToPI: 'To Park Island',
+    switchFerryToTW: 'To Tsuen Wan',
+    switchBusToTWWest: 'To TW West',
     viaHZMB: 'via HZMB',
     normal: 'Normal',
     lastDeparture: 'Last Departure',
@@ -144,12 +144,12 @@ const translations = {
     sunday: '紅日/星期日',
     forceMode: '模式: ',
     fullSchedule: '全日班次',
-    switchFerryToCentral: '渡輪 (往中環)',
-    switchFerryToPI: '渡輪 (往珀麗灣)',
-    switchBusToCentral: '巴士 (往中環)',
-    switchBusToPI: '巴士 (往珀麗灣)',
-    switchFerryToTW: '渡輪 (往荃灣)',
-    switchBusToTWWest: '巴士 (往荃灣西)',
+    switchFerryToCentral: '往中環',
+    switchFerryToPI: '往珀麗灣',
+    switchBusToCentral: '往中環',
+    switchBusToPI: '往珀麗灣',
+    switchFerryToTW: '往荃灣',
+    switchBusToTWWest: '往荃灣西',
     viaHZMB: '經港珠澳',
     normal: '不經港珠澳',
     lastDeparture: '尾班',
@@ -457,7 +457,7 @@ const UpcomingSchedule: React.FC<{ items: ScheduleItem[]; lang: Language; isFull
           {canExtend && ( <button onClick={onToggleView} className={`px-2 py-1 rounded-md bg-slate-100 ${buttonTextSize} font-bold text-slate-500 hover:bg-slate-200 transition-colors flex items-center gap-1`}> {isExtendedView ? <> <ArrowUpCircle size={10} /> {collapseLabel} </> : <> <ArrowDownCircle size={10} /> {expandLabel} </> } </button> )}
           {showRealTimeButton && ( <button onClick={onToggleRealTime} className={`ml-2 px-2 py-1 rounded-md bg-slate-100 ${buttonTextSize} font-bold text-slate-500 hover:bg-slate-200 transition-colors flex items-center gap-1`}> {isRealTime ? t.switchToSchedule : t.realTimeETA} </button> )}
         </div>
-        {crossRoute && ( <button onClick={crossRoute.onAction} className="flex items-center space-x-2 bg-slate-200/60 hover:bg-slate-200 active:bg-slate-300 px-3 py-1.5 rounded-xl transition-all"> <crossRoute.Icon size={14} className="text-slate-600" /> <span className={`${buttonTextSize} font-bold text-slate-600`}>{crossRoute.label}</span> <ChevronRight size={12} className="text-slate-400" /> </button> )}
+        {crossRoute && ( <button onClick={crossRoute.onAction} className="flex items-center space-x-1.5 bg-slate-200/60 hover:bg-slate-200 active:bg-slate-300 px-2.5 py-1 rounded-lg transition-all"> <crossRoute.Icon size={14} className="text-slate-600" /> <span className={`${buttonTextSize} font-bold text-slate-600`}>{crossRoute.label}</span> <ChevronRight size={12} className="text-slate-400" /> </button> )}
       </div>
       <div className="bg-white rounded-[24px] overflow-hidden shadow-xl shadow-slate-200/50 border border-slate-100">
         {items.length === 0 && isRealTime ? (
@@ -579,7 +579,7 @@ const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void; lang: Lang
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.selectLanguage}</label> <div className="grid grid-cols-2 gap-4"> {(['en', 'zh'] as Language[]).map((l) => ( <button key={l} onClick={() => onLangChange(l)} className={`p-5 rounded-3xl border-2 transition-all text-left ${ lang === l ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <div className="font-black text-lg leading-none mb-2">{l === 'en' ? 'English' : '繁體中文'}</div> <div className="text-[10px] uppercase font-bold opacity-60">{l === 'en' ? 'Default' : 'Traditional'}</div> </button> ))} </div> </div>
            <div> <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">{t.scheduleType}</label> <div className="grid grid-cols-2 gap-3"> {(['auto', 'weekday', 'saturday', 'sunday'] as ScheduleOverride[]).map((mode) => ( <button key={mode} onClick={() => onScheduleOverrideChange(mode)} className={`flex items-center justify-between p-4 rounded-3xl border-2 transition-all ${ scheduleOverride === mode ? `border-${themeColor}-600 bg-${themeColor}-50/50 text-${themeColor}-700 shadow-lg shadow-${themeColor}-100` : 'border-slate-100 text-slate-400' }`} > <span className="font-black text-sm">{t[mode as keyof typeof t] as string}</span> {scheduleOverride === mode && <Check size={16} strokeWidth={3} />} </button> ))} </div> </div>
         </div>
-        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.2 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
+        <div className="mt-12 pb-6 sm:pb-0"> <div className="text-center text-[10px] text-slate-300 font-bold mb-2 uppercase tracking-widest"> Version: 2.3 &bull; {updateLabel}: 2026/3/15 </div> <button onClick={onClose} className={`w-full py-5 bg-${themeColor}-600 text-white font-black text-lg rounded-3xl shadow-2xl shadow-${themeColor}-200 active:scale-95 transition-all`}> {t.close} </button> </div>
       </div>
     </div>
   );
